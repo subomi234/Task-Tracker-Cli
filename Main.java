@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.lang.Integer;
+import java.time.LocalDateTime; // Import the LocalDateTime class
+import java.time.format.DateTimeFormatter; // Import the DateTimeFormatter class
 
 public class Main {
 
@@ -66,10 +68,11 @@ public class Main {
     
     public static void main(String[] args) {
 
+        
         //we will make a map later, for easier indexing
         //haha I did
         HashMap<Integer, Task> allTasks = new HashMap<Integer, Task>();
-        
+        int last_task = 0;
 
         try {
             //create file object 
@@ -93,6 +96,10 @@ public class Main {
         try (BufferedReader reader = new BufferedReader(new FileReader("tasks.json"))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                if (line.contains("last_task")) {
+                    last_task = Integer.valueOf(parse(line));
+                    System.out.println(last_task);
+                }
                 if (line.contains("id")) {
                     Task newTask = createTask(line, reader.readLine(), reader.readLine(), reader.readLine(), reader.readLine());
                     allTasks.put(newTask.getId(), newTask);
@@ -106,6 +113,14 @@ public class Main {
         if (args.length > 0) {
 
             if (args[0].equals("add")){
+                if (args.length != 2) {
+                    System.out.println("Invalid Input\n");
+                    printUsage();
+                    return;
+                }
+                else {
+
+                }
                 System.out.println("add");
             }
             else if (args[0].equals("update")){
@@ -148,10 +163,13 @@ public class Main {
             
          
         //writes all the tasks back to the json file 
+
+        //keep checked so that I don't add a comma at the end of the last task, which would mess up the json format
         int checked = 0;
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("tasks.json"))) {
-            writer.write("{\n");
-            writer.write("\t\"tasks\":[");
+            writer.write("{");
+            writer.write("\n\t\"last_task\": " + last_task + ",");
+            writer.write("\n\t\"tasks\":[");
 
             for (Integer i : allTasks.keySet()) {
                 writer.write("\n");
