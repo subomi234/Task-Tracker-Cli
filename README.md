@@ -18,7 +18,7 @@ Tasks are stored locally in a `tasks.json` file in the current directory.
 
 Clone the repository and compile the source files:
 ```bash
-git clone https://github.com/yourusername/task-tracker-cli.git
+git clone https://github.com/subomi234/Task-Tracker-Cli.git
 cd task-tracker-cli
 javac *.java
 ```
