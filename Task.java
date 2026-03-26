@@ -10,7 +10,7 @@ public class Task {
     private String updatedAt;
 
     //formats the date and time 
-    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("E MM/dd/yyyy hh:mm a");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("E MM/dd/yyyy hh:mm a");
 
     public Task(){
         id = 0;
@@ -27,7 +27,7 @@ public class Task {
         status = "todo";
 
         LocalDateTime date = LocalDateTime.now();
-        String formatDate = date.format(myFormatObj);
+        String formatDate = date.format(FORMATTER);
         createdAt = formatDate;
         updatedAt = formatDate;
     }
@@ -64,7 +64,7 @@ public class Task {
     public void updateStatus(String status){
 
         LocalDateTime date = LocalDateTime.now();
-        String formatDate = date.format(myFormatObj);
+        String formatDate = date.format(FORMATTER);
         updatedAt = formatDate;
 
         this.status = status;
@@ -72,7 +72,7 @@ public class Task {
 
     public void updateDescription(String description){
         LocalDateTime date = LocalDateTime.now();
-        String formatDate = date.format(myFormatObj);
+        String formatDate = date.format(FORMATTER);
         updatedAt = formatDate;
 
         this.description = description;

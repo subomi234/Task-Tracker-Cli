@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.lang.Integer;
 
 
-public class Main {
+public class TaskCli {
 
     //lists all tasks based on criteria
     private static void listTasks(HashMap<Integer, Task> map, String str){
@@ -114,9 +114,9 @@ public class Main {
     public static void main(String[] args) {
 
         
-        //we will make a map later, for easier indexing
-        //haha I did
+        //a map for easier indexing, finding tasks based on id
         HashMap<Integer, Task> allTasks = new HashMap<Integer, Task>();
+        //TaskStorage tasks;
         int last_task = 0;
 
         try {
@@ -130,11 +130,12 @@ public class Main {
             else {
                 System.out.println("File already exists");
             }
+
+            //tasks = new TaskStorage(allTasks, myTasks);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace(); // Print error details
         }
-
 
 
         //read 
@@ -163,6 +164,10 @@ public class Main {
                 if (args.length != 2) {
                     System.out.println("Invalid Input\n");
                     printUsage();
+                    return;
+                }
+                else if (args[1].trim().isEmpty()) {
+                    System.out.println("Description cannot be empty.\n");
                     return;
                 }
                 else {
