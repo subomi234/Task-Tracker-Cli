@@ -24,7 +24,7 @@ public class Task {
 
         this.id = id;
         this.description = description;
-        status = "to-do";
+        status = "todo";
 
         LocalDateTime date = LocalDateTime.now();
         String formatDate = date.format(myFormatObj);
@@ -41,31 +41,23 @@ public class Task {
         this.updatedAt = updatedAt;
     }
 
-    //create
     public int getId(){
         return id;
     }
 
-    //create
     public String getDescription(){
         return description;
     }
 
-    //create
     public String getStatus(){
-
         return status;
     }
 
-    //create
     public String getCreatedAt(){
-
         return createdAt;
     }
 
-    //create
     public String getUpdatedAt(){
-
         return updatedAt;
     }
 

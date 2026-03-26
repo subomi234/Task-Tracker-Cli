@@ -1,47 +1,26 @@
 {
-	"last_task": 7,
+	"last_task": 3,
 	"tasks":[
 		{
 			"id": 1,
-			"description": "go to gym",
+			"description": "Buy groceries and cook dinner",
 			"status": "done",
-			"createdAt": "03/24/2025",
-			"updatedAt": "Thu 03/26/2026 01:36 PM"
+			"createdAt": "Thu 03/26/2026 02:31 PM",
+			"updatedAt": "Thu 03/26/2026 02:35 PM"
 		},
 		{
 			"id": 2,
-			"description": "cook dinner",
-			"status": "done",
-			"createdAt": "05/24/2026",
-			"updatedAt": "05/25/2026"
+			"description": "go to store",
+			"status": "todo",
+			"createdAt": "Thu 03/26/2026 02:33 PM",
+			"updatedAt": "Thu 03/26/2026 02:33 PM"
 		},
 		{
 			"id": 3,
-			"description": "take out trash",
-			"status": "in-progress",
-			"createdAt": "03/24/2025",
-			"updatedAt": "03/25/2025"
-		},
-		{
-			"id": 4,
-			"description": "cook dinner",
-			"status": "done",
-			"createdAt": "05/24/2026",
-			"updatedAt": "05/25/2026"
-		},
-		{
-			"id": 5,
-			"description": "buy a ball",
-			"status": "done",
-			"createdAt": "Thu 03/26/2026 12:34",
-			"updatedAt": "Thu 03/26/2026 01:37 PM"
-		},
-		{
-			"id": 7,
-			"description": "go to store",
-			"status": "to-do",
-			"createdAt": "Thu 03/26/2026 01:39 PM",
-			"updatedAt": "Thu 03/26/2026 01:39 PM"
+			"description": "ride my bike",
+			"status": "todo",
+			"createdAt": "Thu 03/26/2026 02:34 PM",
+			"updatedAt": "Thu 03/26/2026 02:34 PM"
 		}
 	]
 }

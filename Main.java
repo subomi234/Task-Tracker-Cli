@@ -10,6 +10,33 @@ import java.lang.Integer;
 
 public class Main {
 
+    //lists all tasks based on criteria
+    private static void listTasks(HashMap<Integer, Task> map, String str){
+
+        //checks if a valid argument was used 
+        if (!str.equals("all") && !str.equals("done") && 
+            !str.equals("todo") && !str.equals("in-progress")){
+            System.out.println("Invalid argument\n");
+            printUsage();
+        }
+
+        //prints out all tasks that satisfy the criteria 
+        else {
+            for (Integer i : map.keySet()) {
+                Task currTask = map.get(i);
+                if (str.equals("all") || currTask.getStatus().equals(str)) {
+                    System.out.println("ID: " + currTask.getId());
+                    System.out.println("Description: " + currTask.getDescription());
+                    System.out.println("Status: " + currTask.getStatus());
+                    System.out.println("Time Created: " + currTask.getCreatedAt());
+                    System.out.println("Time Updated: " + currTask.getUpdatedAt() + "\n");
+                }
+            }
+
+        }
+
+        //can add something to indicate that no tasks fall under a category here later
+    }
     //this method parses through the string 
     private static String parse(String str) {
 
@@ -142,6 +169,7 @@ public class Main {
                     last_task++;
                     Task newTask = new Task(last_task, args[1]);
                     allTasks.put(last_task, newTask);
+                    System.out.println("Task added successfully (ID: " + last_task + ")");
                 }
             }
             //updates task with a new description
@@ -155,6 +183,20 @@ public class Main {
                     int id = checkId(args[1], allTasks);
                     if (id != -1) {
                         allTasks.get(id).updateDescription(args[2]);
+                    }
+                }
+            }
+            //deletes a task
+            else if (args[0].equals("delete")){
+                if (args.length != 2) {
+                    System.out.println("Invalid Input\n");
+                    printUsage();
+                    return;
+                }
+                else {
+                    int id = checkId(args[1], allTasks);
+                    if (id != -1) {
+                        allTasks.remove(id);
                     }
                 }
             }
@@ -184,8 +226,20 @@ public class Main {
                     }
                 }
             }
+            //list all tasks
             else if (args[0].equals("list")){
-                System.out.println("list");
+                if (args.length == 1) {
+                    listTasks(allTasks, "all");
+                }
+                else if (args.length == 2) {
+                    listTasks(allTasks, args[1]);
+                }
+                else {
+                    System.out.println("Invalid Input\n");
+                    printUsage();
+                    return;
+                }
+                
             }
             else{
                 System.out.println("Invalid Input\n");
