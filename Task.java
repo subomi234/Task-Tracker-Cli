@@ -1,3 +1,6 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Task {
     
     private int id;
@@ -5,6 +8,9 @@ public class Task {
     private String status;
     private String createdAt;
     private String updatedAt;
+
+    //formats the date and time 
+    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("E MM/dd/yyyy hh:mm a");
 
     public Task(){
         id = 0;
@@ -14,8 +20,19 @@ public class Task {
         updatedAt = "";
     }
 
-    public Task(int id, String description, String status, 
-                String createdAt, String updatedAt){
+    public Task(int id, String description){
+
+        this.id = id;
+        this.description = description;
+        status = "to-do";
+
+        LocalDateTime date = LocalDateTime.now();
+        String formatDate = date.format(myFormatObj);
+        createdAt = formatDate;
+        updatedAt = formatDate;
+    }
+
+    public Task(int id, String description, String status, String createdAt, String updatedAt){
 
         this.id = id;
         this.description = description;
@@ -53,10 +70,19 @@ public class Task {
     }
 
     public void updateStatus(String status){
+
+        LocalDateTime date = LocalDateTime.now();
+        String formatDate = date.format(myFormatObj);
+        updatedAt = formatDate;
+
         this.status = status;
     }
 
     public void updateDescription(String description){
+        LocalDateTime date = LocalDateTime.now();
+        String formatDate = date.format(myFormatObj);
+        updatedAt = formatDate;
+
         this.description = description;
     }
 

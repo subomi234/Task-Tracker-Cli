@@ -6,8 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.lang.Integer;
-import java.time.LocalDateTime; // Import the LocalDateTime class
-import java.time.format.DateTimeFormatter; // Import the DateTimeFormatter class
+
 
 public class Main {
 
@@ -65,7 +64,26 @@ public class Main {
     }
 
 
-    
+    private static int checkId(String id, HashMap<Integer, Task> map){
+
+        int intId;
+        try {
+            intId = Integer.parseInt(id);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id\n");
+            printUsage();
+            intId = -1;
+        } 
+
+        if (intId != -1 && map.get(intId) == null){
+            System.out.println("Task with Id " + intId + " does not exist\n");
+            printUsage();
+            intId = -1;
+        }
+
+        return intId;
+    }
+
     public static void main(String[] args) {
 
         
@@ -109,9 +127,11 @@ public class Main {
             e.printStackTrace();
         }
 
+
         //need to check arguments after we read in file
         if (args.length > 0) {
 
+            //adds a new task 
             if (args[0].equals("add")){
                 if (args.length != 2) {
                     System.out.println("Invalid Input\n");
@@ -119,23 +139,53 @@ public class Main {
                     return;
                 }
                 else {
-
+                    last_task++;
+                    Task newTask = new Task(last_task, args[1]);
+                    allTasks.put(last_task, newTask);
                 }
-                System.out.println("add");
             }
+            //updates task with a new description
             else if (args[0].equals("update")){
-                System.out.println("update");
+                if (args.length != 3) {
+                    System.out.println("Invalid Input\n");
+                    printUsage();
+                    return;
+                }
+                else {
+                    int id = checkId(args[1], allTasks);
+                    if (id != -1) {
+                        allTasks.get(id).updateDescription(args[2]);
+                    }
+                }
             }
             else if (args[0].equals("mark-in-progress")){
-                System.out.println("in progress");
+                if (args.length != 2) {
+                    System.out.println("Invalid Input\n");
+                    printUsage();
+                    return;
+                }
+                else {
+                    int id = checkId(args[1], allTasks);
+                    if (id != -1) {
+                        allTasks.get(id).updateStatus("in-progress");
+                    }
+                }
             }
             else if (args[0].equals("mark-done")){
-                System.out.println("done");
+                if (args.length != 2) {
+                    System.out.println("Invalid Input\n");
+                    printUsage();
+                    return;
+                }
+                else {
+                    int id = checkId(args[1], allTasks);
+                    if (id != -1) {
+                        allTasks.get(id).updateStatus("done");
+                    }
+                }
             }
             else if (args[0].equals("list")){
                 System.out.println("list");
-                //need to check if valid id, if it's in keyset
-               // System.out.print(allTasks.get(Integer.valueOf(args[1])).getDescription());
             }
             else{
                 System.out.println("Invalid Input\n");
@@ -147,20 +197,6 @@ public class Main {
             System.out.println("No command entered\n");
             printUsage();
         }
-        
-        /* 
-        allTasks.put(3, new Task(3, "take out trash", "in-progress", "03/24/2025", "03/25/2025"));
-        allTasks.put(4, new Task(4, "cook dinner", "done", "05/24/2026", "05/25/2026"));
-
-        for (int i = 0; i < allTasks.size(); i++) {
-            System.out.println(allTasks.get(i).getId());
-            System.out.println(allTasks.get(i).getDescription());
-            System.out.println(allTasks.get(i).getStatus());
-            System.out.println(allTasks.get(i).getCreatedAt());
-            System.out.println(allTasks.get(i).getUpdatedAt());
-        }
-            */
-            
          
         //writes all the tasks back to the json file 
 
@@ -181,6 +217,7 @@ public class Main {
                 writer.write("\t\t\t\"createdAt\": \"" + allTasks.get(i).getCreatedAt() + "\",\n");
                 writer.write("\t\t\t\"updatedAt\": \"" + allTasks.get(i).getUpdatedAt() + "\"\n");
 
+                // checks for the last task
                 if (checked == allTasks.size() - 1) {
                     writer.write("\t\t}");
                 }
@@ -196,8 +233,6 @@ public class Main {
             e.printStackTrace();
         }
             
-
-            
-        
     }
+
 }
