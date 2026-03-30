@@ -1,72 +1,36 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.lang.Integer;
-
 
 public class TaskCli {
 
-    //lists all tasks based on criteria
-    private static void listTasks(HashMap<Integer, Task> map, String str){
+    private static void listTasks(String filter) {
+        HashMap<Integer, Task> allTasks = TaskStorage.getTasks();
 
-        //checks if a valid argument was used 
-        if (!str.equals("all") && !str.equals("done") && 
-            !str.equals("todo") && !str.equals("in-progress")){
+        if (!filter.equals("all") && !filter.equals("done") &&
+            !filter.equals("todo") && !filter.equals("in-progress")) {
             System.out.println("Invalid argument\n");
             printUsage();
+            return;
         }
 
-        //prints out all tasks that satisfy the criteria 
-        else {
-            for (Integer i : map.keySet()) {
-                Task currTask = map.get(i);
-                if (str.equals("all") || currTask.getStatus().equals(str)) {
-                    System.out.println("ID: " + currTask.getId());
-                    System.out.println("Description: " + currTask.getDescription());
-                    System.out.println("Status: " + currTask.getStatus());
-                    System.out.println("Time Created: " + currTask.getCreatedAt());
-                    System.out.println("Time Updated: " + currTask.getUpdatedAt() + "\n");
-                }
+        boolean found = false;
+        for (Integer i : allTasks.keySet()) {
+            Task currTask = allTasks.get(i);
+            if (filter.equals("all") || currTask.getStatus().equals(filter)) {
+                System.out.println("ID: " + currTask.getId());
+                System.out.println("Description: " + currTask.getDescription());
+                System.out.println("Status: " + currTask.getStatus());
+                System.out.println("Time Created: " + currTask.getCreatedAt());
+                System.out.println("Time Updated: " + currTask.getUpdatedAt() + "\n");
+                found = true;
             }
-
         }
 
-        //can add something to indicate that no tasks fall under a category here later
-    }
-    //this method parses through the string 
-    private static String parse(String str) {
-
-        //gets all the string after colon 
-        str = str.substring(str.indexOf(":") + 2, str.length());
-
-        //if the string has a comma at the end exclude it
-        if (str.contains(",")) {
-            str = str.substring(0, str.length() - 1);
+        if (!found) {
+            System.out.println("No tasks found.\n");
         }
-        str = str.replace("\"", "");
- 
-        return str;
     }
 
-    //creates task with raw lines from json
-    private static Task createTask(String id, String description, String status, 
-                String createdAt, String updatedAt){
-            
-            id = parse(id);
-            description = parse(description);
-            status = parse(status);
-            createdAt = parse(createdAt);
-            updatedAt = parse(updatedAt);            
-
-            return new Task(Integer.valueOf(id), description, status, createdAt, updatedAt);
-    }
-
-    //this will print all the options users have
-    private static void printUsage(){
+    private static void printUsage() {
         String usage =
         "Task CLI - Command Usage\n\n" +
         "Commands:\n\n" +
@@ -90,22 +54,21 @@ public class TaskCli {
         System.out.println(usage);
     }
 
-
-    private static int checkId(String id, HashMap<Integer, Task> map){
-
+    private static int checkId(String id) {
+        HashMap<Integer, Task> allTasks = TaskStorage.getTasks();
         int intId;
         try {
             intId = Integer.parseInt(id);
         } catch (NumberFormatException e) {
             System.out.println("Invalid id\n");
             printUsage();
-            intId = -1;
-        } 
+            return -1;
+        }
 
-        if (intId != -1 && map.get(intId) == null){
+        if (allTasks.get(intId) == null) {
             System.out.println("Task with Id " + intId + " does not exist\n");
             printUsage();
-            intId = -1;
+            return -1;
         }
 
         return intId;
@@ -113,185 +76,90 @@ public class TaskCli {
 
     public static void main(String[] args) {
 
-        
-        //a map for easier indexing, finding tasks based on id
-        HashMap<Integer, Task> allTasks = new HashMap<Integer, Task>();
-        //TaskStorage tasks;
-        int last_task = 0;
+        TaskStorage.initFile();
+        TaskStorage.load();
+        HashMap<Integer, Task> allTasks = TaskStorage.getTasks();
 
-        try {
-            //create file object 
-            File myTasks = new File("tasks.json");
-
-            //try to create the file 
-            if (myTasks.createNewFile()) {
-                System.out.println("File created " + myTasks.getName());
-            }
-            else {
-                System.out.println("File already exists");
-            }
-
-            //tasks = new TaskStorage(allTasks, myTasks);
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace(); // Print error details
+        if (args.length == 0) {
+            System.out.println("No command entered\n");
+            printUsage();
+            TaskStorage.save();
+            return;
         }
 
+        if (args[0].equals("add")) {
+            if (args.length != 2) {
+                System.out.println("Invalid Input\n");
+                printUsage();
+            } else if (args[1].trim().isEmpty()) {
+                System.out.println("Description cannot be empty.\n");
+            } else {
+                int lastTask = TaskStorage.getLastTask() + 1;
+                TaskStorage.setLastTask(lastTask);
+                Task newTask = new Task(lastTask, args[1]);
+                allTasks.put(lastTask, newTask);
+                System.out.println("Task added successfully (ID: " + lastTask + ")");
+            }
 
-        //read 
-        try (BufferedReader reader = new BufferedReader(new FileReader("tasks.json"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("last_task")) {
-                    last_task = Integer.valueOf(parse(line));
-                    System.out.println(last_task);
-                }
-                if (line.contains("id")) {
-                    Task newTask = createTask(line, reader.readLine(), reader.readLine(), reader.readLine(), reader.readLine());
-                    allTasks.put(newTask.getId(), newTask);
+        } else if (args[0].equals("update")) {
+            if (args.length != 3) {
+                System.out.println("Invalid Input\n");
+                printUsage();
+            } else {
+                int id = checkId(args[1]);
+                if (id != -1) {
+                    allTasks.get(id).updateDescription(args[2]);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
+        } else if (args[0].equals("delete")) {
+            if (args.length != 2) {
+                System.out.println("Invalid Input\n");
+                printUsage();
+            } else {
+                int id = checkId(args[1]);
+                if (id != -1) {
+                    allTasks.remove(id);
+                }
+            }
 
-        //need to check arguments after we read in file
-        if (args.length > 0) {
+        } else if (args[0].equals("mark-in-progress")) {
+            if (args.length != 2) {
+                System.out.println("Invalid Input\n");
+                printUsage();
+            } else {
+                int id = checkId(args[1]);
+                if (id != -1) {
+                    allTasks.get(id).updateStatus("in-progress");
+                }
+            }
 
-            //adds a new task 
-            if (args[0].equals("add")){
-                if (args.length != 2) {
-                    System.out.println("Invalid Input\n");
-                    printUsage();
-                    return;
-                }
-                else if (args[1].trim().isEmpty()) {
-                    System.out.println("Description cannot be empty.\n");
-                    return;
-                }
-                else {
-                    last_task++;
-                    Task newTask = new Task(last_task, args[1]);
-                    allTasks.put(last_task, newTask);
-                    System.out.println("Task added successfully (ID: " + last_task + ")");
+        } else if (args[0].equals("mark-done")) {
+            if (args.length != 2) {
+                System.out.println("Invalid Input\n");
+                printUsage();
+            } else {
+                int id = checkId(args[1]);
+                if (id != -1) {
+                    allTasks.get(id).updateStatus("done");
                 }
             }
-            //updates task with a new description
-            else if (args[0].equals("update")){
-                if (args.length != 3) {
-                    System.out.println("Invalid Input\n");
-                    printUsage();
-                    return;
-                }
-                else {
-                    int id = checkId(args[1], allTasks);
-                    if (id != -1) {
-                        allTasks.get(id).updateDescription(args[2]);
-                    }
-                }
-            }
-            //deletes a task
-            else if (args[0].equals("delete")){
-                if (args.length != 2) {
-                    System.out.println("Invalid Input\n");
-                    printUsage();
-                    return;
-                }
-                else {
-                    int id = checkId(args[1], allTasks);
-                    if (id != -1) {
-                        allTasks.remove(id);
-                    }
-                }
-            }
-            else if (args[0].equals("mark-in-progress")){
-                if (args.length != 2) {
-                    System.out.println("Invalid Input\n");
-                    printUsage();
-                    return;
-                }
-                else {
-                    int id = checkId(args[1], allTasks);
-                    if (id != -1) {
-                        allTasks.get(id).updateStatus("in-progress");
-                    }
-                }
-            }
-            else if (args[0].equals("mark-done")){
-                if (args.length != 2) {
-                    System.out.println("Invalid Input\n");
-                    printUsage();
-                    return;
-                }
-                else {
-                    int id = checkId(args[1], allTasks);
-                    if (id != -1) {
-                        allTasks.get(id).updateStatus("done");
-                    }
-                }
-            }
-            //list all tasks
-            else if (args[0].equals("list")){
-                if (args.length == 1) {
-                    listTasks(allTasks, "all");
-                }
-                else if (args.length == 2) {
-                    listTasks(allTasks, args[1]);
-                }
-                else {
-                    System.out.println("Invalid Input\n");
-                    printUsage();
-                    return;
-                }
-                
-            }
-            else{
+
+        } else if (args[0].equals("list")) {
+            if (args.length == 1) {
+                listTasks("all");
+            } else if (args.length == 2) {
+                listTasks(args[1]);
+            } else {
                 System.out.println("Invalid Input\n");
                 printUsage();
             }
 
-        }
-        else {
-            System.out.println("No command entered\n");
+        } else {
+            System.out.println("Invalid Input\n");
             printUsage();
         }
-         
-        //writes all the tasks back to the json file 
 
-        //keep checked so that I don't add a comma at the end of the last task, which would mess up the json format
-        int checked = 0;
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("tasks.json"))) {
-            writer.write("{");
-            writer.write("\n\t\"last_task\": " + last_task + ",");
-            writer.write("\n\t\"tasks\":[");
-
-            for (Integer i : allTasks.keySet()) {
-                writer.write("\n");
-                writer.write("\t\t{\n");
-
-                writer.write("\t\t\t\"id\": " + allTasks.get(i).getId() + ",\n");
-                writer.write("\t\t\t\"description\": \"" + allTasks.get(i).getDescription() + "\",\n");
-                writer.write("\t\t\t\"status\": \"" + allTasks.get(i).getStatus() + "\",\n");
-                writer.write("\t\t\t\"createdAt\": \"" + allTasks.get(i).getCreatedAt() + "\",\n");
-                writer.write("\t\t\t\"updatedAt\": \"" + allTasks.get(i).getUpdatedAt() + "\"\n");
-
-                // checks for the last task
-                if (checked == allTasks.size() - 1) {
-                    writer.write("\t\t}");
-                }
-                else {
-                    writer.write("\t\t},");
-                }
-                checked++;
-            }
-
-            writer.write("\n\t]");
-            writer.write("\n}");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-            
+        TaskStorage.save();
     }
-
 }
