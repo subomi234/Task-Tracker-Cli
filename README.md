@@ -78,3 +78,5 @@ The file is created automatically on first use. Each task contains:
 | status      | `todo`, `in-progress`, or `done`   |
 | createdAt   | Timestamp when task was created    |
 | updatedAt   | Timestamp when task was last edited|
+
+This project was made using the instructions here: https://roadmap.sh/projects/task-tracker
